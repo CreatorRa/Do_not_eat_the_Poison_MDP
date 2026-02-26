@@ -107,7 +107,7 @@ class ChompEnv(gym.Env):
         obs_index = mdp.STATE_TO_INDEX[self.state]
 
         # Return the observation and the info dictionary.
-        return obs_index, {"state": self.state}
+        return obs_index, {"state_tuple": self.state}
 
     def step(self, action: Union[int, Tuple[int, int]]) -> Tuple[int, float, bool, bool, Dict[str, Any]]:
         """
@@ -160,7 +160,7 @@ class ChompEnv(gym.Env):
                 -1.0,                           # Negative reward
                 True,                           # Terminated
                 False,                          # Truncated
-                {"info": "Illegal move", "state": self.state}
+                {"info": "Illegal move", "state_tuple": self.state}
             )
 
         # ---------------------------------------------------------------------------
@@ -182,7 +182,7 @@ class ChompEnv(gym.Env):
                 1.0,
                 True,
                 False,
-                {"result": "Win", "state": self.state}
+                {"result": "Win", "state_tuple": self.state}
             )
 
         # ---------------------------------------------------------------------------
@@ -202,7 +202,7 @@ class ChompEnv(gym.Env):
                 1.0,
                 True,
                 False,
-                {"result": "Win (Opponent stuck)", "state": self.state}
+                {"result": "Win (Opponent stuck)", "state_tuple": self.state}
             )
 
         # Opponent chooses a move uniformly at random.
@@ -224,7 +224,7 @@ class ChompEnv(gym.Env):
                 -1.0,
                 True,
                 False,
-                {"result": "Loss", "state": self.state}
+                {"result": "Loss", "state_tuple": self.state}
             )
 
         # ---------------------------------------------------------------------------
@@ -237,7 +237,7 @@ class ChompEnv(gym.Env):
             0.0,
             False,
             False,
-            {"state": self.state}
+            {"state_tuple": self.state}
         )
 
     def render(self):
