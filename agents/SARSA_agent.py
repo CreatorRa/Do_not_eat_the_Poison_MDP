@@ -1,5 +1,11 @@
 import numpy as np
 import random
+import sys
+import os
+
+# Add the project root directory to sys.path to allow imports from 'env'
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 # We import the state dictionary from our MDP module to map tuple states to integer indices.
 from env.mdp import STATE_TO_INDEX
 
@@ -119,3 +125,59 @@ class SarsaAgent:
     def load_model(self, filepath):
         """Loads a pre-trained Q-table from a .npy file."""
         self.q_table = np.load(filepath)
+
+# ============================================================================================
+# Local Testing
+# ============================================================================================
+if __name__ == "__main__":
+    # We import the environment and legal actions specifically for this test
+    from env.chomp_env import ChompEnv
+    from env.mdp import get_legal_actions
+
+    print("Initializing environment and SARSA Agent...")
+    env = ChompEnv()
+    agent = SarsaAgent()
+
+    # Start a new game
+    obs, info = env.reset(seed=42)
+    current_state = info["state_tuple"]
+    terminated = False
+    step_count = 0
+
+    print(f"\nStarting game from state: {current_state}")
+
+    # Play until the game ends
+    while not terminated:
+        step_count += 1
+        
+        # 1. Agent observes legal actions and chooses a move
+        legal_actions = get_legal_actions(current_state)
+        action = agent.choose_action(current_state, legal_actions)
+        
+        print(f"Step {step_count}: Agent chose {action}")
+
+        # 2. Agent takes the action in the environment
+        next_obs, reward, terminated, truncated, next_info = env.step(action)
+
+        # 3. Agent records the experience for the backward pass
+        agent.record_step(current_state, action, reward)
+
+        # 4. Update the current state for the next loop
+        if not terminated:
+            current_state = next_info["state_tuple"]
+            print(f"         Board is now: {current_state}")
+
+    # The game is over!
+    print(f"\nGame Over! Final Reward: {reward}")
+    print(f"Trajectory length before update: {len(agent.trajectory)}")
+
+    # 5. Perform the backward pass to learn from the game
+    agent.update_backward_pass()
+
+    print(f"Backward pass complete. Trajectory length: {len(agent.trajectory)} (Should be 0)")
+    print(f"Epsilon successfully decayed to: {agent.epsilon}")
+    
+    # Verify the Q-table actually updated (it shouldn't be all zeros anymore)
+    import numpy as np
+    non_zero_q = np.count_nonzero(agent.q_table)
+    print(f"Number of updated Q-values in the table: {non_zero_q}")

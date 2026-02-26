@@ -11,7 +11,7 @@ def generate_all_states():
     #Row 0, the top row  
     #The grid is 4 row by 5 columns.
     #Therefore, a single row can have anywhere from 0 to 5 squares remaining. 
-    #rannge(6) is used to produce the values 0, 1, 2, 3, 4, and 5 for the number of squares in the row.
+    #range(6) is used to produce the values 0, 1, 2, 3, 4, and 5 for the number of squares in the row.
     for x0 in range(6):
         #Row 1 cannot have have more squares than row 0
         # This row is geometrically constrained by Row 0 above it. 
