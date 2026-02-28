@@ -6,8 +6,11 @@ import numpy as np
 from env.chomp_env import ChompEnv
 from env.mdp import get_legal_actions
 
-# Import all three of our bots!
+# Import ALL of our bots!
 from agents.random_bot import RandomBot
+from agents.heuristic_bot import HeuristicBot
+# We import your teammate's code and rename it on the fly so it doesn't conflict!
+from agents.exact_solver_bot import HeuristicBot as ExactSolverBot 
 from agents.SARSA_agent import SarsaAgent
 from agents.Qlearning_agent import QLearningAgent
 
@@ -15,10 +18,15 @@ def play_games(agent, env, episodes, is_learning_agent=True, model_filepath=None
     """
     Runs a massive loop of Chomp games. 
     If it's a learning agent, it will update its Q-Table and save the model.
-    If it's a baseline agent (RandomBot), it will just play to gather win-rate stats.
+    If it's a baseline agent (Random, Heuristic, Solver), it will just play to gather stats.
     """
     print(f"\n{'='*60}")
-    print(f"--- Starting {episodes} Episodes for {agent.__class__.__name__} ---")
+    # Print the name of the class so we know who is currently playing
+    agent_name = agent.__class__.__name__
+    if "ExactSolverBot" in str(type(agent)): 
+        agent_name = "ExactSolverBot"
+        
+    print(f"--- Starting {episodes} Episodes for {agent_name} ---")
     print(f"{'='*60}")
     
     wins = 0
@@ -35,8 +43,12 @@ def play_games(agent, env, episodes, is_learning_agent=True, model_filepath=None
                 legal_actions = get_legal_actions(current_state)
                 action = agent.choose_action(current_state, legal_actions)
             else:
-                # RandomBot just takes the state and calculates legal actions internally
-                action = agent.select_action(current_state)
+                # Handle our non-learning bots
+                if hasattr(agent, "select_action"):
+                    action = agent.select_action(current_state)
+                else:
+                    # Your teammate's Exact Solver uses choose_action(state)
+                    action = agent.choose_action(current_state)
                 
             # 2. Execute Action
             next_obs, reward, terminated, truncated, next_info = env.step(action)
@@ -56,8 +68,6 @@ def play_games(agent, env, episodes, is_learning_agent=True, model_filepath=None
             
         # 4. The Backward Pass (Only for learning bots)
         if is_learning_agent:
-            # We use hasattr to safely handle the fact that SARSA uses "backward" 
-            # and Q-Learning uses "backwards" (with an 's')!
             if hasattr(agent, "update_backward_pass"):
                 agent.update_backward_pass()
             elif hasattr(agent, "update_backwards_pass"):
@@ -87,18 +97,29 @@ if __name__ == "__main__":
     # ---------------------------------------------------------
     # 1. Evaluate the Random Baseline
     # ---------------------------------------------------------
-    # We leave the seed blank so it plays a truly random variety of games
     random_bot = RandomBot(seed=None)
     play_games(random_bot, env, 10000, is_learning_agent=False)
     
     # ---------------------------------------------------------
-    # 2. Train the SARSA Agent
+    # 2. Evaluate the Rule-Based Heuristic Bot
+    # ---------------------------------------------------------
+    heuristic_bot = HeuristicBot(seed=None)
+    play_games(heuristic_bot, env, 10000, is_learning_agent=False)
+
+    # ---------------------------------------------------------
+    # 3. Evaluate the Exact Solver (The Mathematical Ceiling)
+    # ---------------------------------------------------------
+    exact_solver = ExactSolverBot()
+    play_games(exact_solver, env, 10000, is_learning_agent=False)
+    
+    # ---------------------------------------------------------
+    # 4. Train the SARSA Agent
     # ---------------------------------------------------------
     sarsa_bot = SarsaAgent()
     play_games(sarsa_bot, env, 10000, is_learning_agent=True, model_filepath="models/sarsa_qtable.npy")
     
     # ---------------------------------------------------------
-    # 3. Train the Q-Learning Agent
+    # 5. Train the Q-Learning Agent
     # ---------------------------------------------------------
     q_bot = QLearningAgent()
     play_games(q_bot, env, 10000, is_learning_agent=True, model_filepath="models/qlearning_qtable.npy")
