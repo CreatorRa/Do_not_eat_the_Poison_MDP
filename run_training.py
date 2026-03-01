@@ -9,8 +9,7 @@ from env.mdp import get_legal_actions
 # Import ALL of our bots!
 from agents.random_bot import RandomBot
 from agents.heuristic_bot import HeuristicBot
-# We import your teammate's code and rename it on the fly so it doesn't conflict!
-from agents.exact_solver_bot import HeuristicBot as ExactSolverBot 
+from agents.Exact_solver import ExactSolver
 from agents.SARSA_agent import SarsaAgent
 from agents.Qlearning_agent import QLearningAgent
 
@@ -106,10 +105,10 @@ if __name__ == "__main__":
     heuristic_bot = HeuristicBot(seed=None)
     play_games(heuristic_bot, env, 10000, is_learning_agent=False)
 
-    # ---------------------------------------------------------
+   # ---------------------------------------------------------
     # 3. Evaluate the Exact Solver (The Mathematical Ceiling)
     # ---------------------------------------------------------
-    exact_solver = ExactSolverBot()
+    exact_solver = ExactSolver()
     play_games(exact_solver, env, 10000, is_learning_agent=False)
     
     # ---------------------------------------------------------
