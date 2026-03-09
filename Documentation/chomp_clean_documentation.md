@@ -1,8 +1,7 @@
 
 # Chomp Reinforcement Learning Project – Documentation
 
-This document provides an overview of the main modules, classes, and functions used in the Chomp reinforcement learning project. All components are documented in Markdown format so the file can be rendered correctly on GitHub.
-
+This document provides an overview of the main modules, classes, and functions used in the Chomp reinforcement learning project.
 ---
 
 # env/chomp_env.py
